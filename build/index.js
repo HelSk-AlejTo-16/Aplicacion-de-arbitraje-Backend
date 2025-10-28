@@ -9,6 +9,7 @@ const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const database_1 = require("./config/database");
+const PasswordRecovery_routes_1 = __importDefault(require("./routes/passordRecovery/PasswordRecovery.routes"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -23,6 +24,7 @@ class Server {
         this.app.use(express_1.default.urlencoded({ limit: '30mb', extended: false }));
     }
     routes() {
+        this.app.use('/api/password-recovery', PasswordRecovery_routes_1.default);
     }
     async start() {
         await (0, database_1.connectDB)();
