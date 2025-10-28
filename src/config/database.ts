@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 // Configuración de la base de datos
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mi_base_datos';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/liga';
 
 export const connectDB = async (): Promise<void> => {
   try {
