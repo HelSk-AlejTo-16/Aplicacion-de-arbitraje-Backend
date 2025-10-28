@@ -5,6 +5,7 @@ import express, { Application } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import { connectDB } from './config/database';
+import passwordRecoveryRoutes from './routes/passordRecovery/PasswordRecovery.routes'
 
 
 class Server {
@@ -26,7 +27,7 @@ class Server {
 
 
     routes(): void {
-
+        this.app.use('/api/password-recovery', passwordRecoveryRoutes);
     }
 
     async start(): Promise<void> {
