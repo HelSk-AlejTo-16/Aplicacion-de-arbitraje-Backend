@@ -7,5 +7,5 @@ function saludar(nombre: string): void {
 }
 
 saludar("Mundo");
-
+console.log(`Esta cosa solo es para crear una rama`);
 //Después conectarlo con server.
