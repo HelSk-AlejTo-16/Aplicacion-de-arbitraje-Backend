@@ -11,9 +11,9 @@ class PasswordRecoveryRoutes {
         this.config();
     }
     config() {
-        this.router.post('/solicitar', PasswordRecovery_controller_1.default.solicitarRecuperacion);
-        this.router.post('/validar-token', PasswordRecovery_controller_1.default.validarToken);
-        this.router.post('/restablecer', PasswordRecovery_controller_1.default.restablecerContraseña);
+        this.router.post('/auth/forgot-password', PasswordRecovery_controller_1.default.solicitarRecuperacion);
+        this.router.post('/validate-token', PasswordRecovery_controller_1.default.validarToken);
+        this.router.post('/auth/reset-password', PasswordRecovery_controller_1.default.restablecerContraseña);
     }
 }
 const passwordRecoveryRoutes = new PasswordRecoveryRoutes;

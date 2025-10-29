@@ -32,14 +32,16 @@ class PasswordRecoveryService {
                     estado: 'activo'
                 });
             }
+            console.log(usuario);
             if (!usuario) {
+                console.log("Correo");
                 return {
                     success: true,
                     message: 'Si el correo existe en nuestro sistema, recibirás un enlace para recuperar tu contraseña.'
                 };
             }
             // Generar token único
-            const token = crypto_1.default.randomBytes(32).toString('hex');
+            const token = crypto_1.default.randomBytes(4).toString('hex').slice(0, 8);
             const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hora
             // Invalidar tokens anteriores no utilizados
             await PasswordResetToken_1.default.updateMany({
@@ -81,7 +83,8 @@ class PasswordRecoveryService {
             if (!resetToken) {
                 return {
                     valid: false,
-                    message: 'El enlace de recuperación es inválido o ha expirado.'
+                    message: 'El enlace de recuperación es inválido o ha expirado.',
+                    success: false
                 };
             }
             // Obtener el email según el rol del usuario
@@ -99,19 +102,22 @@ class PasswordRecoveryService {
                 default:
                     return {
                         valid: false,
-                        message: 'Rol de usuario no válido.'
+                        message: 'Rol de usuario no válido.',
+                        success: false
                     };
             }
             if (!usuario) {
                 return {
                     valid: false,
-                    message: 'Usuario no encontrado.'
+                    message: 'Usuario no encontrado.',
+                    success: false
                 };
             }
             if (!email) {
                 return {
                     valid: false,
-                    message: 'No se pudo obtener el email del usuario.'
+                    message: 'No se pudo obtener el email del usuario.',
+                    success: false
                 };
             }
             return {
@@ -119,13 +125,15 @@ class PasswordRecoveryService {
                 message: 'Token válido',
                 usuario_id: resetToken.usuario_id.toString(),
                 usuario_rol: resetToken.usuario_rol,
-                email: email
+                email: email,
+                success: true
             };
         }
         catch (error) {
             console.error('Error en validarToken:', error);
             return {
                 valid: false,
+                success: false,
                 message: 'Error al validar el token'
             };
         }

@@ -19,29 +19,58 @@ class EmailService {
         });
     }
     async enviarCorreoRecuperacion(correo, nombre, token) {
-        const resetLink = `${process.env.FRONTEND_URL}/recuperar-contraseña?token=${token}`;
         const mailOptions = {
             from: process.env.SMTP_FROM,
             to: correo,
-            subject: 'Recuperación de Contraseña - Tu Organización',
+            subject: 'Recuperación de Contraseña - Bioprode',
             html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Recuperación de Contraseña</h2>
-          <p>Hola ${nombre},</p>
-          <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>
-          <p>
-            <a href="${resetLink}" 
-               style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Restablecer Contraseña
-            </a>
-          </p>
-          <p>Este enlace expirará en 1 hora. ${token}</p>
-
-          <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
-          <br>
-          <p>Saludos,<br>El equipo de Tu Organización</p>
+      <div style="
+        font-family: 'Segoe UI', Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      ">
+        <div style="background-color: #22c55e; padding: 20px; text-align: center;">
+          <h2 style="color: white; margin: 0;">Recuperación de Contraseña</h2>
         </div>
-      `,
+
+        <div style="padding: 25px;">
+          <p style="color: #374151; font-size: 16px;">Hola <strong>${nombre}</strong>,</p>
+
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6;">
+            Has solicitado restablecer tu contraseña en <strong>Bioprode</strong>. Usa el siguiente código para continuar con el proceso de recuperación:
+          </p>
+
+          <div style="
+            background-color: #f97316;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 25px 0;
+          ">
+            ${token}
+          </div>
+
+          <p style="color: #4b5563; font-size: 14px;">
+            Este código expirará en <strong>1 hora</strong>. Si no solicitaste este cambio, puedes ignorar este mensaje.
+          </p>
+
+          <br>
+          <p style="color: #6b7280; font-size: 14px; text-align: center;">
+            Saludos,<br>
+            <strong>El equipo de Bioprode</strong>
+          </p>
+        </div>
+      </div>
+    `,
         };
         await this.transporter.sendMail(mailOptions);
     }
