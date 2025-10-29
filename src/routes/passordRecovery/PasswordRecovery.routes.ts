@@ -8,9 +8,9 @@ class PasswordRecoveryRoutes {
     }
 
     config(): void {
-        this.router.post('/solicitar', PasswordRecoveryController.solicitarRecuperacion);
+        this.router.post('/auth/forgot-password', PasswordRecoveryController.solicitarRecuperacion);
         this.router.post('/validar-token', PasswordRecoveryController.validarToken);
-        this.router.post('/restablecer', PasswordRecoveryController.restablecerContraseña);
+        this.router.post('/auth/reset-password', PasswordRecoveryController.restablecerContraseña);
     }
 }
 
