@@ -140,6 +140,7 @@ const organizadorSchema = new mongoose_1.Schema({
         default: null
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    collection: 'Organizador'
 });
 exports.default = mongoose_1.default.model('Organizador', organizadorSchema);

@@ -10,6 +10,8 @@ const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const database_1 = require("./config/database");
 const PasswordRecovery_routes_1 = __importDefault(require("./routes/passordRecovery/PasswordRecovery.routes"));
+const registerOrganizador_routes_1 = __importDefault(require("./routes/registerOrganizador/registerOrganizador.routes"));
+const loginOrganizador_routes_1 = __importDefault(require("./routes/loginOrganizador/loginOrganizador.routes"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -25,6 +27,8 @@ class Server {
     }
     routes() {
         this.app.use('/api/password-recovery', PasswordRecovery_routes_1.default);
+        this.app.use('/api/auth', registerOrganizador_routes_1.default);
+        this.app.use('/api/auth', loginOrganizador_routes_1.default);
     }
     async start() {
         await (0, database_1.connectDB)();

@@ -6,8 +6,8 @@ import morgan from 'morgan';
 import cors from 'cors';
 import { connectDB } from './config/database';
 import passwordRecoveryRoutes from './routes/passordRecovery/PasswordRecovery.routes'
-
-
+import registerOrganizadorRoutes  from './routes/registerOrganizador/registerOrganizador.routes';
+import loginOrganizadorRoutes from './routes/loginOrganizador/loginOrganizador.routes';
 class Server {
     public app: Application;
 
@@ -28,6 +28,8 @@ class Server {
 
     routes(): void {
         this.app.use('/api/password-recovery', passwordRecoveryRoutes);
+        this.app.use('/api/auth',registerOrganizadorRoutes);
+        this.app.use('/api/auth', loginOrganizadorRoutes);
     }
 
     async start(): Promise<void> {
