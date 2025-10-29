@@ -33,7 +33,10 @@ export class PasswordRecoveryService {
         });
       }
 
+      console.log(usuario);
+
       if (!usuario) {
+        console.log("Correo");
         return {
           success: true,
           message: 'Si el correo existe en nuestro sistema, recibirás un enlace para recuperar tu contraseña.'
@@ -42,7 +45,7 @@ export class PasswordRecoveryService {
       }
 
       // Generar token único
-      const token = crypto.randomBytes(32).toString('hex');
+      const token = crypto.randomBytes(4).toString('hex').slice(0, 8);
       const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hora
 
       // Invalidar tokens anteriores no utilizados
@@ -84,82 +87,89 @@ export class PasswordRecoveryService {
     }
   }
 
-/**
- * Validar token de recuperación
- */
-async validarToken(token: string): Promise<{
-  valid: boolean;
-  message: string;
-  usuario_id?: string;
-  usuario_rol?: string;
-  email?: string;
-}> {
-  try {
-    const resetToken = await PasswordResetToken.findOne({
-      token,
-      used: false,
-      expires_at: { $gt: new Date() }
-    });
+  /**
+   * Validar token de recuperación
+   */
+  async validarToken(token: string): Promise<{
+    valid: boolean;
+    message: string;
+    usuario_id?: string;
+    usuario_rol?: string;
+    email?: string;
+    success: boolean;
+  }> {
+    try {
+      const resetToken = await PasswordResetToken.findOne({
+        token,
+        used: false,
+        expires_at: { $gt: new Date() }
+      });
 
-    if (!resetToken) {
-      return {
-        valid: false,
-        message: 'El enlace de recuperación es inválido o ha expirado.'
-      };
-    }
-
-    // Obtener el email según el rol del usuario
-    let email = '';
-    let usuario;
-
-    switch (resetToken.usuario_rol) {
-      case 'organizador':
-        usuario = await Organizador.findById(resetToken.usuario_id);
-        email = usuario?.datos_personales?.correo || '';
-        break;
-
-      case 'arbitro':
-        usuario = await Arbitro.findById(resetToken.usuario_id);
-        email = usuario?.datos_personales?.correo || '';
-        break;
-
-      default:
+      if (!resetToken) {
         return {
           valid: false,
-          message: 'Rol de usuario no válido.'
+          message: 'El enlace de recuperación es inválido o ha expirado.',
+          success: false
         };
-    }
+      }
 
-    if (!usuario) {
+      // Obtener el email según el rol del usuario
+      let email = '';
+      let usuario;
+
+      switch (resetToken.usuario_rol) {
+        case 'organizador':
+          usuario = await Organizador.findById(resetToken.usuario_id);
+          email = usuario?.datos_personales?.correo || '';
+          break;
+
+        case 'arbitro':
+          usuario = await Arbitro.findById(resetToken.usuario_id);
+          email = usuario?.datos_personales?.correo || '';
+          break;
+
+        default:
+          return {
+            valid: false,
+            message: 'Rol de usuario no válido.',
+            success: false
+          };
+      }
+
+      if (!usuario) {
+        return {
+          valid: false,
+          message: 'Usuario no encontrado.',
+          success: false
+        };
+      }
+
+      if (!email) {
+        return {
+          valid: false,
+          message: 'No se pudo obtener el email del usuario.',
+          success: false
+        };
+      }
+
+      return {
+        valid: true,
+        message: 'Token válido',
+        usuario_id: resetToken.usuario_id.toString(),
+        usuario_rol: resetToken.usuario_rol,
+        email: email,
+        success: true
+      };
+
+    } catch (error) {
+      console.error('Error en validarToken:', error);
       return {
         valid: false,
-        message: 'Usuario no encontrado.'
+        success: false,
+        message: 'Error al validar el token'
       };
     }
-
-    if (!email) {
-      return {
-        valid: false,
-        message: 'No se pudo obtener el email del usuario.'
-      };
-    }
-
-    return {
-      valid: true,
-      message: 'Token válido',
-      usuario_id: resetToken.usuario_id.toString(),
-      usuario_rol: resetToken.usuario_rol,
-      email: email
-    };
-
-  } catch (error) {
-    console.error('Error en validarToken:', error);
-    return {
-      valid: false,
-      message: 'Error al validar el token'
-    };
   }
-}
 }
 
 export default new PasswordRecoveryService();

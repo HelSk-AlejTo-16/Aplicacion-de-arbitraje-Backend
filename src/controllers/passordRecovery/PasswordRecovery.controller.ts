@@ -53,7 +53,9 @@ export class PasswordRecoveryController {
 
             const result = await PasswordRecoveryService.validarToken(token);
 
-            res.json(result);
+            res.json(
+                result
+            );
 
         } catch (error) {
             console.error('Error en validarToken controller:', error);
