@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const PasswordRecovery_controller_1 = __importDefault(require("../../controller/passordRecovery/PasswordRecovery.controller"));
+const PasswordRecovery_controller_1 = __importDefault(require("../../controllers/passordRecovery/PasswordRecovery.controller"));
 class PasswordRecoveryRoutes {
     constructor() {
         this.router = (0, express_1.Router)();

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import PasswordRecoveryController from '../../controller/passordRecovery/PasswordRecovery.controller';
+import PasswordRecoveryController from '../../controllers/passordRecovery/PasswordRecovery.controller';
 
 class PasswordRecoveryRoutes {
     public router: Router = Router();

@@ -12,6 +12,7 @@ export interface IOrganizador extends Document {
     fecha_nacimiento: Date;
     curp: string;
     ine: string;
+    sexo:'H' | 'M'; //<---Agregué
     icono_perfil?: string;
     lugar_residencia: {
       calle?: string;
@@ -147,7 +148,8 @@ const organizadorSchema = new Schema<IOrganizador>({
     default: null
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'Organizador'  
 });
 
 export default mongoose.model<IOrganizador>('Organizador', organizadorSchema);
