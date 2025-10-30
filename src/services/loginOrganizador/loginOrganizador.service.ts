@@ -14,7 +14,9 @@ interface LoginResponse {
     id: string;
     clave_organizacion: string;
     correo: string;
-    nombre_completo: string;
+    nombre: string;
+    apellido_p: string;
+    apellido_m: string;
     nombre_organizacion: string;
     estado: string;
   };
@@ -79,7 +81,9 @@ class LoginOrganizadorService {
         id: (organizador._id as any).toString(),
         clave_organizacion: organizador.clave_organizacion,
         correo: organizador.datos_personales.correo,
-        nombre_completo: `${organizador.datos_personales.nombre} ${organizador.datos_personales.apellido_p} ${organizador.datos_personales.apellido_m}`,
+        nombre: organizador.datos_personales.nombre,
+        apellido_p: organizador.datos_personales.apellido_p,
+        apellido_m: organizador.datos_personales.apellido_m,
         nombre_organizacion: organizador.datos_organizacion.nombre_organizacion,
         estado: organizador.estado
       }
@@ -142,6 +146,5 @@ class LoginOrganizadorService {
     return !!organizador;
   }
 }
-
 const loginOrganizadorService = new LoginOrganizadorService;
 export default new LoginOrganizadorService();
