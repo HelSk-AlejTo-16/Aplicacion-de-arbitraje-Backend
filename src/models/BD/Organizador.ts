@@ -12,7 +12,7 @@ export interface IOrganizador extends Document {
     fecha_nacimiento: Date;
     curp: string;
     ine: string;
-    sexo:'H' | 'M'; //<---Agregué
+    sexo: 'H' | 'M'; //<---Agregué
     icono_perfil?: string;
     lugar_residencia: {
       calle?: string;
@@ -27,8 +27,8 @@ export interface IOrganizador extends Document {
     fecha_creacion_organizacion: Date;
     fecha_creacion_cuenta: Date;
   };
-  contacto: {
-    telefono_principal: string;
+  contacto?: {
+    telefono_principal?: string;
     telefono_secundario?: string;
     whatsapp?: string;
     telefono_emergencia?: string;
@@ -112,12 +112,9 @@ const organizadorSchema = new Schema<IOrganizador>({
     }
   },
   contacto: {
-    telefono_principal: {
-      type: String,
-      required: true
-    },
-    telefono_secundario: String,
-    whatsapp: String,
+    telefono_principal:
+      String,
+
     telefono_emergencia: String
   },
   configuracion: {
@@ -149,7 +146,7 @@ const organizadorSchema = new Schema<IOrganizador>({
   }
 }, {
   timestamps: true,
-  collection: 'Organizador'  
+  collection: 'Organizador'
 });
 
 export default mongoose.model<IOrganizador>('Organizador', organizadorSchema);

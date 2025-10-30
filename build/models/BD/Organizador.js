@@ -104,12 +104,7 @@ const organizadorSchema = new mongoose_1.Schema({
         }
     },
     contacto: {
-        telefono_principal: {
-            type: String,
-            required: true
-        },
-        telefono_secundario: String,
-        whatsapp: String,
+        telefono_principal: String,
         telefono_emergencia: String
     },
     configuracion: {
