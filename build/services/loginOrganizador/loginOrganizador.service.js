@@ -45,7 +45,9 @@ class LoginOrganizadorService {
                 id: organizador._id.toString(),
                 clave_organizacion: organizador.clave_organizacion,
                 correo: organizador.datos_personales.correo,
-                nombre_completo: `${organizador.datos_personales.nombre} ${organizador.datos_personales.apellido_p} ${organizador.datos_personales.apellido_m}`,
+                nombre: organizador.datos_personales.nombre,
+                apellido_p: organizador.datos_personales.apellido_p,
+                apellido_m: organizador.datos_personales.apellido_m,
                 nombre_organizacion: organizador.datos_organizacion.nombre_organizacion,
                 estado: organizador.estado
             }
