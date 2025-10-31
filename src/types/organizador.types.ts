@@ -12,7 +12,8 @@ export type CrearOrganizadorInput = Omit<
   datos_personales: Omit<IOrganizador['datos_personales'], 'fecha_nacimiento'> & {
     fecha_nacimiento: string; // String porque viene del body como "YYYY-MM-DD"
   };
-  datos_organizacion: Omit<IOrganizador['datos_organizacion'], 'fecha_creacion_organizacion' | 'fecha_creacion_cuenta'> & {
+  datos_organizacion: Omit<IOrganizador['datos_organizacion'], 'nombre_organizacion'|'fecha_creacion_organizacion' | 'fecha_creacion_cuenta'> & {
+    fecha_creacion_cuenta: String;
     fecha_creacion_organizacion: string; // String porque viene del body
   };
   configuracion?: {
@@ -20,4 +21,5 @@ export type CrearOrganizadorInput = Omit<
     tema_oscuro?: boolean;
     idioma?: string;
   };
+
 };

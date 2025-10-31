@@ -18,7 +18,7 @@ export const registrarOrganizador = async (
     // ====== VALIDACIONES HTTP (responsabilidad del controlador) ======
     
     // 1. Validar que vengan los datos principales
-    if (!datos_personales || !datos_organizacion || !contacto) {
+    if (!datos_personales || !datos_organizacion || !contacto || !configuracion) {
       res.status(400).json({
         success: false,
         message: 'Faltan campos requeridos'
@@ -36,7 +36,8 @@ export const registrarOrganizador = async (
       'fecha_nacimiento',
       'curp',
       'ine',
-      'sexo'
+      'sexo',
+      'lugar_residencia'
     ];
 
     for (const campo of camposRequeridos) {
@@ -48,6 +49,50 @@ export const registrarOrganizador = async (
         return;
       }
     }
+
+  
+// 3. Validar lugar_residencia (subdocumento anidado)
+if (!datos_personales.lugar_residencia || 
+    typeof datos_personales.lugar_residencia !== 'object') {
+  res.status(400).json({
+    success: false,
+    message: 'lugar_residencia es requerido en datos_personales'
+  });
+  return;
+}
+ const camposResidencia = ['calle', 'municipio', 'estado', 'pais'];
+    for (const campo of camposResidencia) {
+      if (!datos_personales.lugar_residencia[campo as keyof typeof datos_personales.lugar_residencia]) {
+        res.status(400).json({
+          success: false,
+          message: `El campo ${campo} es requerido en lugar_residencia`
+        });
+        return;
+      }
+    }
+
+// 4. Validar contacto (subdocumento)
+if (typeof contacto !== 'object') {
+  res.status(400).json({
+    success: false,
+    message: 'contacto debe ser un objeto válido'
+  });
+  return;
+}
+
+// 5. Validar campos de datos_organizacion
+const camposOrganizacion = ['nombre_organizacion', 'fecha_creacion_organizacion'];
+
+for (const campo of camposOrganizacion) {
+  if (!datos_organizacion[campo as keyof typeof datos_organizacion]) {
+    res.status(400).json({
+      success: false,
+      message: `El campo ${campo} es requerido en datos_organizacion`
+    });
+    return;
+  }
+}
+
 
     // 3. Validar que el sexo sea H o M
     if (datos_personales.sexo !== 'H' && datos_personales.sexo !== 'M') {

@@ -12,14 +12,15 @@ export interface IOrganizador extends Document {
     fecha_nacimiento: Date;
     curp: string;
     ine: string;
-    sexo: 'H' | 'M'; //<---Agregué
+    sexo: 'H' | 'M';
     icono_perfil?: string;
     lugar_residencia: {
-      calle?: string;
+      cp?: string;
+      calle: string;
       colonia?: string;
-      municipio?: string;
-      estado?: string;
-      pais?: string;
+      municipio: string;
+      estado: string;
+      pais: string;
     };
   };
   datos_organizacion: {
@@ -27,10 +28,9 @@ export interface IOrganizador extends Document {
     fecha_creacion_organizacion: Date;
     fecha_creacion_cuenta: Date;
   };
-  contacto?: {
-    telefono_principal?: string;
-    telefono_secundario?: string;
-    whatsapp?: string;
+  contacto: {
+    telefono_principal: string;
+
     telefono_emergencia?: string;
   };
   configuracion: {
@@ -88,13 +88,41 @@ const organizadorSchema = new Schema<IOrganizador>({
       type: String,
       required: true
     },
-    icono_perfil: String,
+     sexo: {
+    type: String,
+    enum: ['H', 'M'],
+    required: true
+  },
+    icono_perfil: {
+      type:String,
+      required:true
+    },
     lugar_residencia: {
-      calle: String,
-      colonia: String,
-      municipio: String,
-      estado: String,
-      pais: String
+      cp: {
+        type: String,
+        required: true
+      },
+      calle: {
+        type: String,
+        required: true
+      },
+      colonia: {
+        type: String,
+        required: false
+
+      },
+      municipio: {
+        type: String,
+        required: true
+      },
+      estado: {
+        type: String,
+        required: true
+      },
+      pais: {
+        type: String,
+        required: true
+      }
     }
   },
   datos_organizacion: {
@@ -112,10 +140,16 @@ const organizadorSchema = new Schema<IOrganizador>({
     }
   },
   contacto: {
-    telefono_principal:
-      String,
+    telefono_principal: {
+      type: String,
+      required: true
+    },
 
-    telefono_emergencia: String
+
+    telefono_emergencia: {
+      type: String,
+      required: false
+    }
   },
   configuracion: {
     notificaciones_email: {
@@ -148,5 +182,6 @@ const organizadorSchema = new Schema<IOrganizador>({
   timestamps: true,
   collection: 'Organizador'
 });
+//Creado por: cuando hagamos la parte de administrador.
 
 export default mongoose.model<IOrganizador>('Organizador', organizadorSchema);
