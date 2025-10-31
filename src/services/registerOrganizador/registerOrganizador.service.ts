@@ -1,11 +1,10 @@
 
-//service/registerOrganuzador.service.ts.
+//service/registerOrganizador.service.ts.
 import bcrypt from 'bcrypt';
 import Organizador, { IOrganizador } from '../../models/BD/Organizador';
 import { CrearOrganizadorInput } from '../../types/organizador.types';
-
-class LoginOrganizadorService{
-     async generarClaveOrganizacion(
+class RegisterOrganizadorService { // Cambié el nombre de la clase
+  async generarClaveOrganizacion(
     nombre: string,
     apellidoP: string,
     apellidoM: string,
@@ -27,7 +26,6 @@ class LoginOrganizadorService{
     const codigoNombre = (nombreLimpio.substring(0, 3) + 'XXX').substring(0, 3);
 
     // 3. Obtener contador secuencial
-    // Buscar cuántos organizadores ya tienen este patrón de nombre
     const patronBase = `ORG-${codigoNombre}`;
     const organizadoresExistentes = await Organizador.find({
       clave_organizacion: new RegExp(`^${patronBase}\\d{3}-`)
@@ -35,7 +33,6 @@ class LoginOrganizadorService{
 
     let contador = 1;
     if (organizadoresExistentes.length > 0) {
-      // Extraer el número del último registro y sumar 1
       const ultimaClave = organizadoresExistentes[0].clave_organizacion;
       const match = ultimaClave.match(/ORG-[A-Z]{3}(\d{3})-/);
       if (match) {
@@ -60,18 +57,18 @@ class LoginOrganizadorService{
     // 6. Construir clave completa
     const claveCompleta = `ORG-${codigoNombre}${contadorStr}-${codigoApellidos}${año}`;
 
-    // 7. Verificar unicidad (por si acaso)
+    // 7. Verificar unicidad
     const existeClave = await Organizador.findOne({ clave_organizacion: claveCompleta });
     if (existeClave) {
-      // Si por alguna razón ya existe, agregar un sufijo aleatorio
       const sufijo = Math.floor(Math.random() * 10);
       return `${claveCompleta}${sufijo}`;
     }
 
     return claveCompleta;
   }
-    async verificarExistencia(correo:string, curp:string,){
- const organizadorExistente = await Organizador.findOne({
+
+  async verificarExistencia(correo: string, curp: string) {
+    const organizadorExistente = await Organizador.findOne({
       $or: [
         { 'datos_personales.correo': correo },
         { 'datos_personales.curp': curp },
@@ -83,57 +80,87 @@ class LoginOrganizadorService{
         throw new Error('Ya existe un organizador con ese correo');
       } else if (organizadorExistente.datos_personales.curp === curp) {
         throw new Error('Ya existe un organizador con ese CURP');
-      } else {
-        throw new Error('Ya existe un organizador con esa clave de organización');
       }
     }
   }
 
-  /*Encriptación de contraseña */
-  async encriptarContraseña(contraseña:string): Promise<string>{
-        const saltRounds = 12;
-       return await bcrypt.hash(contraseña, saltRounds);
+  /**
+   * Encriptación de contraseña
+   */
+  async encriptarContraseña(contraseña: string): Promise<string> {
+    const saltRounds = 12;
+    return await bcrypt.hash(contraseña, saltRounds);
   }
 
-
-async crearOrganizador(datos: CrearOrganizadorInput): Promise<IOrganizador>{
-const {
-    
-
+  /**
+   * Crea un nuevo organizador con todos los datos validados
+   */
+  async crearOrganizador(datos: CrearOrganizadorInput): Promise<IOrganizador> {
+    const {
       datos_personales,
       datos_organizacion,
       contacto,
       configuracion
     } = datos;
 
- await this.verificarExistencia(
-      datos_personales.correo,
+    // 1. Validar CURP completo (incluyendo sexo)
+    const validacionCURP = this.validarCURPCompleto(
       datos_personales.curp,
+      datos_personales.nombre,
+      datos_personales.apellido_p,
+      datos_personales.apellido_m,
+      new Date(datos_personales.fecha_nacimiento),
+      datos_personales.sexo,
     );
-     const clave_organizacion = await this.generarClaveOrganizacion(
+
+    if (!validacionCURP.valido) {
+      throw new Error(`CURP inválido: ${validacionCURP.errores.join(', ')}`);
+    }
+    this.validarLugarResidencia(datos_personales.lugar_residencia);
+
+    // 2. Verificar existencia
+    await this.verificarExistencia(
+      datos_personales.correo,
+      datos_personales.curp
+    );
+
+    // 3. Generar clave de organización
+    const clave_organizacion = await this.generarClaveOrganizacion(
       datos_personales.nombre,
       datos_personales.apellido_p,
       datos_personales.apellido_m,
       new Date(datos_personales.fecha_nacimiento)
     );
 
-    // Encriptar contraseña
+    // 4. Encriptar contraseña
     const contraseñaEncriptada = await this.encriptarContraseña(
       datos_personales.contraseña
     );
 
-    // Crear organizador
+    // 5. Crear organizador
     const nuevoOrganizador = new Organizador({
       clave_organizacion,
       datos_personales: {
-        ...datos_personales,
+        correo: datos_personales.correo,
         contraseña: contraseñaEncriptada,
-        fecha_nacimiento: new Date(datos_personales.fecha_nacimiento)
+        nombre: datos_personales.nombre,
+        apellido_p: datos_personales.apellido_p,
+        apellido_m: datos_personales.apellido_m,
+        fecha_nacimiento: new Date(datos_personales.fecha_nacimiento),
+        curp: datos_personales.curp,
+        ine: datos_personales.ine,
+        sexo: datos_personales.sexo, 
+        icono_perfil: datos_personales.icono_perfil,
+        lugar_residencia:{
+          ...datos_personales.lugar_residencia,
+        } 
       },
       datos_organizacion: {
-        ...datos_organizacion,
+        nombre_organizacion: datos_organizacion.nombre_organizacion,
         fecha_creacion_organizacion: new Date(datos_organizacion.fecha_creacion_organizacion),
-        fecha_creacion_cuenta: new Date()
+        fecha_creacion_cuenta: datos_organizacion.fecha_creacion_cuenta 
+          ? new Date(datos_organizacion.fecha_creacion_cuenta) 
+          : new Date()
       },
       contacto,
       configuracion: {
@@ -145,10 +172,11 @@ const {
       fecha_actualizacion: new Date()
     });
 
-    // Guardar en BD
+    // 6. Guardar en BD
     return await nuevoOrganizador.save();
   }
-   /**
+
+  /**
    * Obtiene un organizador sin la contraseña
    */
   obtenerOrganizadorSinContraseña(organizador: IOrganizador) {
@@ -158,13 +186,41 @@ const {
   }
 
   /**
-   * Valida el formato del CURP Se podrá mejorar esto para comprobar
+   * Valida el formato del CURP
    */
   validarFormatoCURP(curp: string): boolean {
     const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[0-9A-Z]\d$/;
     return curpRegex.test(curp);
   }
- validarCURPCompleto(
+
+  /**
+   * Validación completa del CURP contra datos personales
+   */
+  private validarLugarResidencia(lugar_residencia: any): void {
+  if (!lugar_residencia) {
+    throw new Error('El lugar de residencia es obligatorio');
+  }
+  
+  const errores: string[] = [];
+  
+  if (!lugar_residencia.calle?.trim()) {
+    errores.push('La calle es obligatoria');
+  }
+  if (!lugar_residencia.municipio?.trim()) {
+    errores.push('El municipio es obligatorio');
+  }
+  if (!lugar_residencia.estado?.trim()) {
+    errores.push('El estado es obligatorio');
+  }
+  if (!lugar_residencia.pais?.trim()) {
+    errores.push('El país es obligatorio');
+  }
+  
+  if (errores.length > 0) {
+    throw new Error(`Errores en lugar_residencia: ${errores.join(', ')}`);
+  }
+}
+  validarCURPCompleto(
     curp: string,
     nombre: string,
     apellidoP: string,
@@ -214,11 +270,11 @@ const {
     }
 
     // 6. Validar fecha de nacimiento
-   const año = fechaNacimiento.getUTCFullYear();
-const mes = String(fechaNacimiento.getUTCMonth() + 1).padStart(2, '0');
-const dia = String(fechaNacimiento.getUTCDate()).padStart(2, '0');
-const añoCorto = String(año).substring(2, 4);
-const fechaEsperada = `${añoCorto}${mes}${dia}`;
+    const año = fechaNacimiento.getUTCFullYear();
+    const mes = String(fechaNacimiento.getUTCMonth() + 1).padStart(2, '0');
+    const dia = String(fechaNacimiento.getUTCDate()).padStart(2, '0');
+    const añoCorto = String(año).substring(2, 4);
+    const fechaEsperada = `${añoCorto}${mes}${dia}`;
 
     if (curpFecha !== fechaEsperada) {
       errores.push(`La fecha de nacimiento no coincide. Esperado: ${fechaEsperada}, En CURP: ${curpFecha}`);
@@ -240,9 +296,7 @@ const fechaEsperada = `${añoCorto}${mes}${dia}`;
    */
   private obtenerPrimeraLetra(texto: string): string {
     texto = texto.toUpperCase().trim();
-    // Reemplazar Ñ por X según las reglas del CURP
     texto = texto.replace(/Ñ/g, 'X');
-    // Quitar acentos
     texto = texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return texto.charAt(0);
   }
@@ -252,26 +306,18 @@ const fechaEsperada = `${añoCorto}${mes}${dia}`;
    */
   private obtenerPrimeraVocal(texto: string): string {
     texto = texto.toUpperCase().trim();
-    // Quitar acentos
     texto = texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     
     const vocales = ['A', 'E', 'I', 'O', 'U'];
     
-    // Empezar desde el segundo carácter
     for (let i = 1; i < texto.length; i++) {
       if (vocales.includes(texto.charAt(i))) {
         return texto.charAt(i);
       }
     }
     
-    // Si no hay vocal, retornar X según las reglas del CURP
     return 'X';
   }
 }
 
-
-export default new LoginOrganizadorService();
-
-
-
-
+export default new RegisterOrganizadorService();

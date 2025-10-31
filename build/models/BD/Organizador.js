@@ -80,13 +80,40 @@ const organizadorSchema = new mongoose_1.Schema({
             type: String,
             required: true
         },
-        icono_perfil: String,
+        sexo: {
+            type: String,
+            enum: ['H', 'M'],
+            required: true
+        },
+        icono_perfil: {
+            type: String,
+            required: true
+        },
         lugar_residencia: {
-            calle: String,
-            colonia: String,
-            municipio: String,
-            estado: String,
-            pais: String
+            cp: {
+                type: String,
+                required: true
+            },
+            calle: {
+                type: String,
+                required: true
+            },
+            colonia: {
+                type: String,
+                required: false
+            },
+            municipio: {
+                type: String,
+                required: true
+            },
+            estado: {
+                type: String,
+                required: true
+            },
+            pais: {
+                type: String,
+                required: true
+            }
         }
     },
     datos_organizacion: {
@@ -104,8 +131,14 @@ const organizadorSchema = new mongoose_1.Schema({
         }
     },
     contacto: {
-        telefono_principal: String,
-        telefono_emergencia: String
+        telefono_principal: {
+            type: String,
+            required: true
+        },
+        telefono_emergencia: {
+            type: String,
+            required: false
+        }
     },
     configuracion: {
         notificaciones_email: {
@@ -138,4 +171,5 @@ const organizadorSchema = new mongoose_1.Schema({
     timestamps: true,
     collection: 'Organizador'
 });
+//Creado por: cuando hagamos la parte de administrador.
 exports.default = mongoose_1.default.model('Organizador', organizadorSchema);
